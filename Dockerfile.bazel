@@ -1,0 +1,19 @@
+FROM resin/rpi-raspbian:stretch
+RUN apt-get update
+RUN apt-get install -y sudo git
+RUN apt-get install -y pkg-config zip g++ zlib1g-dev unzip
+RUN apt-get install -y python3-pip python3-wheel python3-numpy swig python3-dev
+RUN apt-get install -y build-essential python zip
+RUN apt-get install -y default-jre default-jdk
+RUN apt-get install -y wget
+RUN wget -q https://github.com/bazelbuild/bazel/releases/download/0.9.0/bazel-0.9.0-dist.zip
+WORKDIR bazel
+RUN unzip ../bazel-0.9.0-dist.zip
+RUN rm ../bazel-0.9.0-dist.zip
+# Limit the heap usage of javac
+RUN sed -i 's/UTF-8 "@${paramfile}"/UTF-8 "@${paramfile}" -J-Xmx500M/g' scripts/bootstrap/compile.sh
+RUN bash ./compile.sh
+RUN cp /bazel/output/bazel /usr/local/bin/
+WORKDIR ..
+RUN rm -rf bazel
+
